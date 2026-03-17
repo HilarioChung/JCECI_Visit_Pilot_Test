@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>관리자 | 제주창조경제혁신센터</title>
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="제주창조경제혁신센터 공간 이용 관리">
+  <meta property="og:description" content="제주창조경제혁신센터 공간 이용 신청 및 관리 시스템">
+  <meta property="og:image" content="https://ccei.creativekorea.or.kr/jeju/resources/images/common/logo_jeju.png">
+  <meta property="og:url" content="https://hilariochung.github.io/Pilot_Test/prototype_관리자.html">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: -apple-system, 'Noto Sans KR', sans-serif; }
@@ -20,13 +25,31 @@
     .toggle-track.on { background:#2563eb; }
     .toggle-thumb { width:16px;height:16px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2); }
     .toggle-track.on .toggle-thumb { left:21px; }
+    /* 모바일 사이드바 */
+    #sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+    #sidebar.open { transform: translateX(0); }
+    #sidebar-overlay { opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+    #sidebar-overlay.open { opacity: 1; pointer-events: auto; }
+    @media (min-width: 768px) {
+      #sidebar { transform: translateX(0) !important; }
+      #sidebar-overlay { display: none !important; }
+      #hamburger-btn { display: none !important; }
+      #main-content { margin-left: 14rem; }
+    }
+    @media (max-width: 767px) {
+      #main-content { margin-left: 0 !important; }
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
+
+<!-- 모바일 사이드바 오버레이 -->
+<div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-40 z-20" onclick="closeSidebar()"></div>
+
 <div class="flex flex-1">
 
 <!-- ══ 사이드바 ══ -->
-<aside class="w-56 bg-white border-r border-gray-200 flex flex-col fixed h-full z-10 shadow-sm">
+<aside id="sidebar" class="w-56 bg-white border-r border-gray-200 flex flex-col fixed h-full z-30 shadow-sm">
   <div class="px-4 py-4 border-b border-gray-200">
     <img src="https://ccei.creativekorea.or.kr/jeju/resources/images/common/logo_jeju.png"
          alt="제주창조경제혁신센터" class="h-7 w-auto max-w-[140px] object-contain"
@@ -87,20 +110,28 @@
 </aside>
 
 <!-- ══ 메인 ══ -->
-<div class="ml-56 flex-1 flex flex-col">
-  <header class="bg-white border-b border-gray-200 px-6 h-14 flex items-center justify-between sticky top-0 z-10">
-    <h1 id="page-title" class="text-base font-bold text-gray-900">대시보드</h1>
+<div id="main-content" class="flex-1 flex flex-col">
+  <header class="bg-white border-b border-gray-200 px-4 md:px-6 h-14 flex items-center justify-between sticky top-0 z-10">
     <div class="flex items-center gap-3">
-      <span id="current-time" class="text-xs text-gray-400"></span>
+      <!-- 햄버거 메뉴 버튼 (모바일 전용) -->
+      <button id="hamburger-btn" onclick="openSidebar()" class="p-1.5 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+      <h1 id="page-title" class="text-base font-bold text-gray-900">대시보드</h1>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="current-time" class="text-xs text-gray-400 hidden sm:inline"></span>
       <button onclick="loadData()" class="text-xs text-gray-500 hover:text-blue-600 border border-gray-200 rounded-lg px-2.5 py-1.5 hover:border-blue-300 transition-colors">↻ 새로고침</button>
     </div>
   </header>
 
-  <main class="flex-1 p-6">
+  <main class="flex-1 p-3 md:p-6">
 
     <!-- ── 대시보드 ── -->
     <div id="view-dashboard">
-      <div class="grid grid-cols-5 gap-3 mb-6">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-6">
         <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
           <p class="text-xs text-gray-500 mb-1">오늘 총 신청</p>
           <p id="card-total" class="text-2xl font-bold text-gray-900">0</p>
@@ -128,8 +159,8 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-3 gap-4">
-        <div class="col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="md:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm">
           <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
             <h3 class="text-sm font-bold text-gray-900">최근 신청 현황</h3>
             <button onclick="showView('applications')" class="text-xs text-blue-600 hover:underline">전체 보기 →</button>
@@ -236,7 +267,7 @@
           기본값으로 초기화
         </button>
       </div>
-      <div id="facility-settings-grid" class="grid grid-cols-2 gap-4"></div>
+      <div id="facility-settings-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
     </div>
 
   </main>
@@ -369,7 +400,15 @@ function checkAutoNoShow() {
       }
     }
   });
-  if (changed) { renderAll(); toast('⚠️ 노쇼 자동 처리되었습니다.'); }
+  if (changed) {
+    updateCards();
+    renderRecent();
+    renderQuickPending();
+    renderApplications();
+    renderFacilityStatus();
+    updateBadge();
+    toast('노쇼 자동 처리되었습니다.');
+  }
 }
 setInterval(checkAutoNoShow, 60000);
 
@@ -394,17 +433,17 @@ function updateBadge() {
 function renderRecent() {
   const recent = [...apps].sort((a,b) => new Date(b.appliedAt)-new Date(a.appliedAt)).slice(0,6);
   document.getElementById('recent-list').innerHTML = recent.map(a => `
-    <div class="px-5 py-3 flex items-center gap-3 hover:bg-gray-50 cursor-pointer" onclick="openModal('${a.id}')">
-      <span class="text-lg shrink-0">${a.locationIcon||'📍'}</span>
+    <div class="px-5 py-3 flex items-center gap-3 hover:bg-gray-50 cursor-pointer" onclick="openModal('${esc(a.id)}')">
+      <span class="text-lg shrink-0">${esc(a.locationIcon||'📍')}</span>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-1.5 flex-wrap">
-          <span class="text-sm font-medium text-gray-900">${a.name}</span>
-          <span class="text-xs text-gray-400">${a.org}</span>
+          <span class="text-sm font-medium text-gray-900">${esc(a.name)}</span>
+          <span class="text-xs text-gray-400">${esc(a.org)}</span>
           <span class="text-xs text-gray-300">·</span>
-          <span class="text-xs text-gray-500">${a.location||'-'}</span>
+          <span class="text-xs text-gray-500">${esc(a.location||'-')}</span>
           ${a.isContinuous ? '<span class="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">연속</span>' : ''}
         </div>
-        <p class="text-xs text-gray-500 mt-0.5">${a.purpose} · ${fmtDt(a.checkIn)}</p>
+        <p class="text-xs text-gray-500 mt-0.5">${esc(a.purpose)} · ${fmtDt(a.checkIn)}</p>
       </div>
       <span class="${statusClass(a.status)} text-xs px-2 py-0.5 rounded-full font-medium shrink-0">${statusLabel(a.status)}</span>
     </div>`).join('');
@@ -420,17 +459,17 @@ function renderQuickPending() {
   el.innerHTML = pending.map(a => `
     <div class="px-4 py-3">
       <div class="flex items-start gap-2 mb-2">
-        <span class="text-lg">${a.locationIcon||'📍'}</span>
+        <span class="text-lg">${esc(a.locationIcon||'📍')}</span>
         <div>
-          <p class="text-sm font-medium text-gray-900">${a.name} <span class="text-xs font-normal text-gray-400">${a.org}</span></p>
-          <p class="text-xs text-gray-500">${a.location} · ${a.purpose}</p>
+          <p class="text-sm font-medium text-gray-900">${esc(a.name)} <span class="text-xs font-normal text-gray-400">${esc(a.org)}</span></p>
+          <p class="text-xs text-gray-500">${esc(a.location)} · ${esc(a.purpose)}</p>
           <p class="text-xs text-gray-400">${fmtDate(a.checkIn)}</p>
         </div>
       </div>
       <div class="flex gap-1.5">
-        <button onclick="updateStatus('${a.id}','approved')" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold py-1.5 rounded-lg">승인</button>
-        <button onclick="updateStatus('${a.id}','rejected')" class="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-1.5 rounded-lg">거부</button>
-        <button onclick="openModal('${a.id}')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold py-1.5 rounded-lg">상세</button>
+        <button onclick="updateStatus('${esc(a.id)}','approved')" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold py-1.5 rounded-lg">승인</button>
+        <button onclick="updateStatus('${esc(a.id)}','rejected')" class="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold py-1.5 rounded-lg">거부</button>
+        <button onclick="openModal('${esc(a.id)}')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-semibold py-1.5 rounded-lg">상세</button>
       </div>
     </div>`).join('');
 }
@@ -475,8 +514,9 @@ function renderApplications() {
   empty.classList.add('hidden');
 
   tbody.innerHTML = filtered.map(a => {
+    const safeId = esc(a.id);
     const btn = (label, id, newStatus, color) =>
-      `<button onclick="updateStatus('${id}','${newStatus}')"
+      `<button onclick="updateStatus('${esc(id)}','${newStatus}')"
         class="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg border shadow-sm transition-all active:scale-95
           ${color}">${label}</button>`;
     const actionBtns = (() => {
@@ -486,14 +526,14 @@ function renderApplications() {
       return `<span class="text-xs text-gray-400">-</span>`;
     })();
     return `
-      <tr class="cursor-pointer" onclick="openModal('${a.id}')">
-        <td class="px-4 py-3 text-xs text-gray-500 font-mono">${a.id}</td>
-        <td class="px-4 py-3"><p class="text-sm font-medium text-gray-900">${a.name}</p><p class="text-xs text-gray-400">${a.org}</p></td>
-        <td class="px-4 py-3"><div class="flex items-center gap-1.5"><span>${a.locationIcon||'📍'}</span><span class="text-sm text-gray-700">${a.location||'-'}</span></div></td>
-        <td class="px-4 py-3 text-sm text-gray-700">${a.purpose}</td>
+      <tr class="cursor-pointer" onclick="openModal('${safeId}')">
+        <td class="px-4 py-3 text-xs text-gray-500 font-mono">${safeId}</td>
+        <td class="px-4 py-3"><p class="text-sm font-medium text-gray-900">${esc(a.name)}</p><p class="text-xs text-gray-400">${esc(a.org)}</p></td>
+        <td class="px-4 py-3"><div class="flex items-center gap-1.5"><span>${esc(a.locationIcon||'📍')}</span><span class="text-sm text-gray-700">${esc(a.location||'-')}</span></div></td>
+        <td class="px-4 py-3 text-sm text-gray-700">${esc(a.purpose)}</td>
         <td class="px-4 py-3 text-xs text-gray-600">${fmtDt(a.checkIn)}</td>
         <td class="px-4 py-3 text-xs text-gray-600">${fmtDt(a.checkOut)}</td>
-        <td class="px-4 py-3">${a.isContinuous?`<span class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">~${a.contEndDate}</span>`:'<span class="text-gray-300 text-xs">-</span>'}</td>
+        <td class="px-4 py-3">${a.isContinuous?`<span class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">~${esc(a.contEndDate)}</span>`:'<span class="text-gray-300 text-xs">-</span>'}</td>
         <td class="px-4 py-3"><span class="${statusClass(a.status)} text-xs px-2 py-0.5 rounded-full font-medium">${statusLabel(a.status)}</span></td>
         <td class="px-4 py-3" onclick="event.stopPropagation()">${actionBtns}</td>
       </tr>`;
@@ -518,13 +558,13 @@ function renderFacilityStatus() {
           <span class="text-lg w-7 text-center">${facIcon(fac.name)}</span>
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between mb-1">
-              <span class="text-sm font-medium text-gray-800">${fac.name}</span>
+              <span class="text-sm font-medium text-gray-800">${esc(fac.name)}</span>
               <span class="text-xs text-gray-400">${usingFac.length}/${fac.capacity} · 오늘 ${todayFac.length}건</span>
             </div>
             <div class="w-full bg-gray-100 rounded-full h-1.5">
               <div class="${bar} h-1.5 rounded-full" style="width:${pct}%"></div>
             </div>
-            ${usingFac.length?`<div class="mt-1.5 flex flex-wrap gap-1">${usingFac.map(a=>`<span class="text-[11px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">${a.name} ~${fmtTime(a.checkOut)}</span>`).join('')}</div>`:''}
+            ${usingFac.length?`<div class="mt-1.5 flex flex-wrap gap-1">${usingFac.map(a=>`<span class="text-[11px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">${esc(a.name)} ~${fmtTime(a.checkOut)}</span>`).join('')}</div>`:''}
           </div>
         </div>`;
     }).join('');
@@ -535,7 +575,7 @@ function renderFacilityStatus() {
           <div class="flex items-center gap-3">
             <span class="text-2xl">${loc.icon}</span>
             <div>
-              <h3 class="font-bold text-gray-900">${loc.name}</h3>
+              <h3 class="font-bold text-gray-900">${esc(loc.name)}</h3>
               <p class="text-xs text-gray-500">체크인 ${activeNow.length}명 · 오늘 이용 ${todayApproved.length}건</p>
             </div>
           </div>
@@ -590,12 +630,12 @@ function renderVisitorHistory() {
       <tr class="hover:bg-gray-50">
         <td class="px-5 py-3">
           <div class="flex items-center gap-2">
-            <span class="text-sm font-medium text-gray-900">${v.name}</span>
+            <span class="text-sm font-medium text-gray-900">${esc(v.name)}</span>
             ${isHighRisk ? '<span class="text-[10px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-full font-bold">⚠️ 노쇼주의</span>' : ''}
           </div>
         </td>
-        <td class="px-5 py-3 text-xs text-gray-600">${v.email}</td>
-        <td class="px-5 py-3 text-xs text-gray-600">${v.org}</td>
+        <td class="px-5 py-3 text-xs text-gray-600">${esc(v.email)}</td>
+        <td class="px-5 py-3 text-xs text-gray-600">${esc(v.org)}</td>
         <td class="px-4 py-3 text-center text-sm font-semibold text-gray-900">${v.total}</td>
         <td class="px-4 py-3 text-center text-sm font-semibold text-emerald-600">${v.completed}</td>
         <td class="px-4 py-3 text-center">
@@ -624,11 +664,11 @@ function openVisitorHistory(idx) {
 
   const rows = [...v.apps].sort((a,b)=>new Date(b.checkIn)-new Date(a.checkIn)).map(a => `
     <tr class="border-t border-gray-100">
-      <td class="py-2 text-xs font-mono text-gray-400">${a.id}</td>
+      <td class="py-2 text-xs font-mono text-gray-400">${esc(a.id)}</td>
       <td class="py-2 text-xs text-gray-700">${fmtDate(a.checkIn)}</td>
-      <td class="py-2 text-xs text-gray-700">${a.location||'-'}</td>
-      <td class="py-2 text-xs text-gray-700">${a.purpose}</td>
-      <td class="py-2 text-xs text-gray-600">${a.facilities.length?a.facilities.join(', '):'-'}</td>
+      <td class="py-2 text-xs text-gray-700">${esc(a.location||'-')}</td>
+      <td class="py-2 text-xs text-gray-700">${esc(a.purpose)}</td>
+      <td class="py-2 text-xs text-gray-600">${a.facilities.length?a.facilities.map(f=>esc(f)).join(', '):'-'}</td>
       <td class="py-2"><span class="${statusClass(a.status)} text-xs px-2 py-0.5 rounded-full font-medium">${statusLabel(a.status)}</span></td>
       <td class="py-2 text-xs text-gray-500">${a.actualCheckIn ? fmtTime(a.actualCheckIn) : '-'}</td>
       <td class="py-2 text-xs text-gray-500">${a.actualCheckOut ? fmtTime(a.actualCheckOut) : '-'}</td>
@@ -740,7 +780,8 @@ function addFacilityRow(locationId) {
     <td class="py-1.5 text-center">
       <button onclick="this.closest('tr').remove()" title="삭제"
         class="w-6 h-6 flex items-center justify-center rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors mx-auto">✕</button>
-    </td>`;
+    </td>
+  </tr>`;
   tbody.appendChild(tr);
   tr.querySelector('.fac-name').focus();
 }
@@ -862,6 +903,8 @@ function showView(view) {
   });
   const titles = {dashboard:'대시보드',applications:'신청 관리',facilities:'시설 현황','visitor-history':'방문 이력','facility-settings':'시설 관리'};
   document.getElementById('page-title').textContent = titles[view];
+  // 모바일에서 뷰 전환 시 사이드바 닫기
+  if (window.innerWidth < 768) closeSidebar();
 }
 
 // ══ 토스트 ══
@@ -882,6 +925,18 @@ function fmtDate(str) { if(!str) return '-'; return new Date(str).toLocaleDateSt
 function fmtTime(str) { if(!str) return '-'; return new Date(str).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}); }
 function statusLabel(s) { return {pending:'대기',approved:'승인','checked-in':'체크인',completed:'완료',rejected:'거부','no-show':'노쇼'}[s]||s; }
 function statusClass(s) { return {pending:'status-pending',approved:'status-approved','checked-in':'status-checked-in',completed:'status-completed',rejected:'status-rejected','no-show':'status-no-show'}[s]||''; }
+
+// ══ 모바일 사이드바 ══
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
 
 // ══ 초기화 ══
 function updateClock() { document.getElementById('current-time').textContent = new Date().toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); }
